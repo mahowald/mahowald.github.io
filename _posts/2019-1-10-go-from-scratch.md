@@ -107,7 +107,7 @@ paths:
             operationId: get_model
             responses:
                 200:
-                    description: Returns a description of the currently running model.
+                    description: Describes the currently running model.
                     schema: { type: object }
 ```
 
@@ -162,7 +162,11 @@ Once this is done, you can build and run your server by navigating to the
 `cmd/myservice-server` directory and running `go install`, and then running
 (for example)
 ```
-./myservice-server --tls-host=0.0.0.0 --tls-port=8080 --tls-key=keys/key.key --tls-certificate=keys/crt.crt
+./myservice-server \ 
+  --tls-host=0.0.0.0 \
+  --tls-port=8080 \
+  --tls-key=keys/key.key \
+  --tls-certificate=keys/crt.crt
 ```
 If all goes well, you'll see a log message that you're now serving
 your API at port 8080 on your local machine, and you should be able to

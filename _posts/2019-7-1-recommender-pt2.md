@@ -28,16 +28,16 @@ import numpy as np
 np.random.seed(42)
 
 ratings = pd.read_csv(RATING_DATA_FILE,
-                    sep='::',
-                    engine='python',
-                    encoding='latin-1',
-                    names=['userid', 'movieid', 'rating', 'timestamp'])
+            sep='::',
+            engine='python',
+            encoding='latin-1',
+            names=['userid', 'movieid', 'rating', 'timestamp'])
 
 movies = pd.read_csv(os.path.join(MOVIELENS_DIR, MOVIE_DATA_FILE),
-                    sep='::',
-                    engine='python',
-                    encoding='latin-1',
-                    names=['movieid', 'title', 'genre']).set_index("movieid")
+            sep='::',
+            engine='python',
+            encoding='latin-1',
+            names=['movieid', 'title', 'genre']).set_index("movieid")
 ```
 
 Let's take a quick look at the top 20 most-viewed files:
@@ -182,7 +182,12 @@ decent number of ratings. Let's restrict to only the 500 most popular films
 (as determined by number of ratings). We'll also reindex by `movieid` and `userid`:
 
 ```python
-rating_counts = ratings.groupby("movieid")["rating"].count().sort_values(ascending=False)
+rating_counts = (
+  ratings
+  .groupby("movieid")["rating"]
+  .count()
+  .sort_values(ascending=False)
+)
 
 # only the 500 most popular movies
 pop_ratings = ratings[ratings["movieid"].isin((rating_counts).index[0:500])]
@@ -223,7 +228,11 @@ mean_u = prefs.groupby("userid").mean()
 prefs = prefs - mean_u
 
 
-pref_matrix = prefs.reset_index()[["userid", "movieid", "rating"]].pivot(index="userid", columns="movieid", values="rating")
+pref_matrix = (
+  prefs
+  .reset_index()[["userid", "movieid", "rating"]]
+  .pivot(index="userid", columns="movieid", values="rating")
+)
 ```
 
 The output of this block of code is two objects: `prefs`, which is a dataframe
@@ -323,9 +332,13 @@ of these two layers.
 # ~~~ build recommender ~~~ #
 input_layer = Input(shape=(ITEM_COUNT, ))
 # compress to low dimension
-encoded = Dense(ENCODING_DIM, activation="linear", use_bias=False)(input_layer)
+encoded = Dense(ENCODING_DIM, 
+                activation="linear", 
+                use_bias=False)(input_layer)
 # blow up to large dimension
-decoded = Dense(ITEM_COUNT, activation="linear", use_bias=False)(encoded)       
+decoded = Dense(ITEM_COUNT, 
+                activation="linear", 
+                use_bias=False)(encoded)       
 
 # define subsets of the model:
 # 1. the recommender itself
@@ -336,7 +349,8 @@ encoder = Model(input_layer, encoded)
 
 # 3. the decoder
 encoded_input = Input(shape=(ENCODING_DIM, ))
-decoder = Model(encoded_input, recommender.layers[-1](encoded_input))
+decoder = Model(encoded_input, 
+          recommender.layers[-1](encoded_input))
 ```
 
 Custom loss functions
@@ -426,10 +440,13 @@ wrap the recommender we already defined with this simple wrapper model.
 original_inputs = recommender.input
 y_true_inputs = Input(shape=(ITEM_COUNT, ))
 original_outputs = recommender.output
-# give 80% of the weight to guessing the missings, 20% to reproducing the knowns
-loss = Lambda(lambda_mse(0.8))([original_inputs, y_true_inputs, original_outputs])
+# give 80% of the weight to guessing the missings, 
+# 20% to reproducing the knowns
+loss = Lambda(lambda_mse(0.8))(
+  [original_inputs, y_true_inputs, original_outputs])
 
-wrapper_model = Model(inputs=[original_inputs, y_true_inputs], outputs=[loss])
+wrapper_model = Model(inputs=[original_inputs, y_true_inputs], 
+                      outputs=[loss])
 wrapper_model.compile(optimizer='adadelta', loss=final_loss)
 ```
 
@@ -448,10 +465,13 @@ def generate(pref_matrix, batch_size=64, mask_fraction=0.2):
     Generate training triplets from this dataset.
 
     :param batch_size: Size of each training data batch.
-    :param mask_fraction: Fraction of ratings in training data input to mask. 0.2 = hide 20% of input ratings.
+    :param mask_fraction: Fraction of ratings in training
+        data input to mask. 0.2 = hide 20% of input ratings.
     :param repeat: Steps between shuffles.
-    :return: A generator that returns tuples of the form ([X, y], zeros) where X, y, and zeros all have
-             shape[0] = batch_size. X, y are training inputs for the recommender.
+    :return: A generator that returns tuples of the form 
+        ([X, y], zeros) where X, y, and zeros all have
+        shape[0] = batch_size. X, y are training inputs for 
+        the recommender.
     """
 
     def select_and_mask(frac):
@@ -459,7 +479,8 @@ def generate(pref_matrix, batch_size=64, mask_fraction=0.2):
             row = row.copy()
             idx = np.where(row != 0)[0]
             if len(idx) > 0:
-                masked = np.random.choice(idx, size=(int)(frac*len(idx)), replace=False)
+                masked = np.random.choice(idx, 
+                    size=(int)(frac*len(idx)), replace=False)
                 row[masked] = 0
             return row
         return applier
@@ -473,7 +494,9 @@ def generate(pref_matrix, batch_size=64, mask_fraction=0.2):
             idx = indices[batch*batch_size:(batch+1)*batch_size]
 
             y = np.array(pref_matrix[idx,:])
-            X = np.apply_along_axis(select_and_mask(frac=mask_fraction), axis=1, arr=y)
+            X = np.apply_along_axis(
+              select_and_mask(frac=mask_fraction),
+              axis=1, arr=y)
 
             yield [X, y], np.zeros(batch_size)
 ```
@@ -491,8 +514,17 @@ generator and allows us to set a few other parameters (number of epochs,
 early stopping, etc):
 
 ```python
-def fit(wrapper_model, pref_matrix, batch_size=64, mask_fraction=0.2, epochs=1, verbose=1, patience=0):
-    stopper = EarlyStopping(monitor="loss", min_delta=0.00001, patience=patience, verbose=verbose)
+def fit(wrapper_model,
+        pref_matrix, 
+        batch_size=64, 
+        mask_fraction=0.2, 
+        epochs=1, 
+        verbose=1, 
+        patience=0):
+    stopper = EarlyStopping(monitor="loss", 
+        min_delta=0.00001, 
+        patience=patience, 
+        verbose=verbose)
     batches_per_epoch = int(np.floor(pref_matrix.shape[0]/batch_size))
 
     generator = generate(pref_matrix, batch_size, mask_fraction)
@@ -517,7 +549,9 @@ model earlier if loss doesn't improve).
 
 ```python
 # stop after 3 epochs with no improvement
-fit(wrapper_model, pref_matrix.fillna(0).values, batch_size=125, epochs=100, patience=3)
+fit(wrapper_model, 
+    pref_matrix.fillna(0).values, 
+    batch_size=125, epochs=100, patience=3)
 # Loss of 0.6321
 ```
 
@@ -553,7 +587,12 @@ def predict(ratings, recommender, mean_0, mean_i, movies):
 
     ratings = ratings.append(dummy_user["rating"])
 
-    pref_mat = ratings.reset_index()[["userid", "movieid", "rating"]].pivot(index="userid", columns="movieid", values="rating")
+    pref_mat = (ratings
+                .reset_index()[["userid", "movieid", "rating"]]
+                .pivot(index="userid", 
+                       columns="movieid", 
+                       values="rating")
+              )
     X = pref_mat.fillna(0).values
     y = recommender.predict(X)
 
@@ -581,7 +620,10 @@ sample_ratings = pd.DataFrame([
 ]).set_index(["movieid", "userid"])
 
 # predict and print the top 10 ratings for this user
-y = predict(sample_ratings, recommender, mean_0, mean_i, movies.loc[(rating_counts).index[0:500]]).transpose()
+y = predict(sample_ratings, 
+        recommender,
+        mean_0, mean_i, 
+        movies.loc[(rating_counts).index[0:500]]).transpose()
 preds = y.sort_values(by=1, ascending=False).head(10)
 
 preds["title"] = movies.loc[preds.index]["title"]
@@ -688,7 +730,11 @@ sample_ratings2 = pd.DataFrame([
     {"userid": 1, "movieid": 1197, "rating": 5}  # princess bride
 ]).set_index(["movieid", "userid"])
 
-y = predict(sample_ratings2, recommender, mean_0, mean_i, movies.loc[(rating_counts).index[0:500]]).transpose()
+y = predict(sample_ratings2, 
+            recommender, 
+            mean_0, mean_i, 
+            movies.loc[(rating_counts).index[0:500]]
+            ).transpose()
 preds = y.sort_values(by=1, ascending=False).head(10)
 
 preds["title"] = movies.loc[preds.index]["title"]

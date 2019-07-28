@@ -167,7 +167,11 @@ ratings = pd.read_csv("ratings.csv")
 
 mean_rating = ratings['rating'].mean() # compute mean rating
 
-pref_matrix = ratings[['userId', 'movieId', 'rating']].pivot(index='userId', columns='movieId', values='rating')
+pref_matrix = (ratings[['userId', 'movieId', 'rating']]
+               .pivot(index='userId', 
+                      columns='movieId', 
+                      values='rating')
+            )
 
 pref_matrix = pref_matrix - mean_rating # adjust by overall mean
 
