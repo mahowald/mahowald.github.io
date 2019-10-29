@@ -196,7 +196,8 @@ func main() {
 
         http.HandleFunc("/", makeRequestHandler(inchan, outchan))
         go func() {
-            log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", c.String("port")), nil))
+            log.Fatal(http.ListenAndServe(
+                fmt.Sprintf(":%v", c.String("port")), nil))
         }()
 
         err = cmd.Wait()
