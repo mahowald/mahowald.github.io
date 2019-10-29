@@ -273,8 +273,8 @@ As before, the answer will hinge on vector embeddings of words.
 
 The basic idea is the following:
 
-1. For each sentence, compute some "aggregate" word vector.
-2. Identify the sentence's topic by finding the word in our vocabulary whose word vector is closest to the sentence vector.
+1. For each sentence, compute some "weighted aggregate" word vector.
+2. Identify the sentence's topic by finding the word in our vocabulary whose word vector is closest to the sentence's weighted aggregate word vector.
 
 For part 1, the naive approach would be to assign each sentence the average of the word vectors for each token in the sentence.
 However, this approach weights each word equally, which might not be what we want: the indicator of the sentence's topic may only appear once, relative to the other text.
