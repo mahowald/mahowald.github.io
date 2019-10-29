@@ -62,22 +62,22 @@ func main() {
     app.Action = func(c *cli.Context) error {
         cmd := exec.Command(c.Args().First(), c.Args().Tail()...)
 
-		cmdWriter, _ := cmd.StdinPipe()
+        cmdWriter, _ := cmd.StdinPipe()
         cmdReader, _ := cmd.StdoutPipe()
 
-		err := cmd.Start()
-		if err != nil {
-			log.Fatal(err)
+        err := cmd.Start()
+        if err != nil {
+            log.Fatal(err)
         }
         
         err = cmd.Wait()
-		return err
+        return err
     }
 
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
+    err := app.Run(os.Args)
+    if err != nil {
+        log.Fatal(err)
+    }
 }
 ```
 
@@ -133,20 +133,20 @@ func makeRequestHandler(
     inputs chan string, 
     outputs chan string,
 ) func(w http.ResponseWriter, r *http.Request) {
-	f := func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "POST":
-			body, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				http.Error(w, err.Error(), 500)
-			}
-			inputs <- string(body)
-			resp := <-outputs
-			fmt.Fprint(w, resp+"\n")
-		}
-	}
+    f := func(w http.ResponseWriter, r *http.Request) {
+        switch r.Method {
+        case "POST":
+            body, err := ioutil.ReadAll(r.Body)
+            if err != nil {
+                http.Error(w, err.Error(), 500)
+            }
+            inputs <- string(body)
+            resp := <-outputs
+            fmt.Fprint(w, resp+"\n")
+        }
+    }
 
-	return f
+    return f
 }
 ```
 
@@ -154,59 +154,59 @@ Putting it all together, here's our updated `main()` function:
 
 ```go
 func main() {
-	app := cli.NewApp()
-	app.Name = "telephone"
-	app.Usage = "Wrap the specified application with a simple webserver"
+    app := cli.NewApp()
+    app.Name = "telephone"
+    app.Usage = "Wrap the specified application with a simple webserver"
 
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "port",
-			Value: "8080",
-			Usage: "port for the webserver",
-		},
-	}
+    app.Flags = []cli.Flag{
+        cli.StringFlag{
+            Name:  "port",
+            Value: "8080",
+            Usage: "port for the webserver",
+        },
+    }
 
-	app.Action = func(c *cli.Context) error {
+    app.Action = func(c *cli.Context) error {
         cmd := exec.Command(c.Args().First(), c.Args().Tail()...)
         
-		cmdWriter, _ := cmd.StdinPipe()
+        cmdWriter, _ := cmd.StdinPipe()
         cmdReader, _ := cmd.StdoutPipe()
         
-		inchan := make(chan string)
+        inchan := make(chan string)
         outchan := make(chan string)
         
-		go func() {
-			scanner := bufio.NewScanner(cmdReader)
-			for scanner.Scan() {
-				msg := scanner.Text()
-				outchan <- msg
-			}
+        go func() {
+            scanner := bufio.NewScanner(cmdReader)
+            for scanner.Scan() {
+                msg := scanner.Text()
+                outchan <- msg
+            }
         }()
         
-		go func() {
-			for msg := range inchan {
-				io.WriteString(cmdWriter, msg+"\n")
-			}
-		}()
+        go func() {
+            for msg := range inchan {
+                io.WriteString(cmdWriter, msg+"\n")
+            }
+        }()
 
-		err := cmd.Start()
-		if err != nil {
-			panic(err)
-		}
+        err := cmd.Start()
+        if err != nil {
+            panic(err)
+        }
 
-		http.HandleFunc("/", makeRequestHandler(inchan, outchan))
-		go func() {
-			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", c.String("port")), nil))
-		}()
+        http.HandleFunc("/", makeRequestHandler(inchan, outchan))
+        go func() {
+            log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", c.String("port")), nil))
+        }()
 
-		err = cmd.Wait()
-		return err
-	}
+        err = cmd.Wait()
+        return err
+    }
 
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatal(err)
-	}
+    err := app.Run(os.Args)
+    if err != nil {
+        log.Fatal(err)
+    }
 }
 ```
 
