@@ -87,16 +87,27 @@ with the proposed question "In what country is Normandy located?".
 
 Unfortunately, `albert-large-v2` gets this one wrong:
 ```
-echo "In what country is Normandy located?" | docker run -i --gpus all local/squad
+echo "In what country is Normandy located?" | \
+docker run -i --gpus all local/squad
 ```
 returns
 ```
-{"score": 3.239981109320325e-05, "start": 32, "end": 49, "answer": "French: Normands;"}
+{
+    "score": 3.239981109320325e-05, 
+    "start": 32, 
+    "end": 49, 
+    "answer": "French: Normands;"
+}
 ```
 
 Note as well that even small variations in the question can also produce different responses---asking "What country is Normandy located in?" produces the response
 ```
-{"score": 5.0038562250316696e-05, "start": 451, "end": 501, "answer": "Roman-Gaulish populations, their descendants would"}
+{
+    "score": 5.0038562250316696e-05, 
+    "start": 451, 
+    "end": 501, 
+    "answer": "Roman-Gaulish populations, their descendants would"
+}
 ```
 
 (A full list of the [available model aliases can be found here.](https://huggingface.co/transformers/pretrained_models.html))
