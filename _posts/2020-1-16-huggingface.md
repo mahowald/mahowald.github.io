@@ -126,7 +126,7 @@ p = pipeline('question-answering',
 ```
 
 Note that in practice fine-tuning models can be quite demanding---for example, the smaller BERT base models have about 110 million parameters.
-(A list of the [supported pretrained models can be found here](https://huggingface.co/transformers/pretrained_models.html.))
+(A list of the [supported pretrained models can be found here](https://huggingface.co/transformers/pretrained_models.html))
 
 Anyway, that's all for now.
 I'll update this post as I delve further!
