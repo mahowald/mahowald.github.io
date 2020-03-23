@@ -251,21 +251,17 @@ Next, a function to infect a given number of random healthy individuals in the p
 
 ```python
 def infect(population, count):
-    healthy = (population[:,STATE_HEALTHY] == 1).nonzero()[0]
-    if len(healthy) == 0:
-        return
-    to_infect = np.random.choice(healthy, 
-                                 size=min(count, len(healthy)), 
-                                 replace=False)
+    to_infect = np.random.choice(len(population), size=count, replace=False)
+    infectees = to_infect[(population[to_infect,STATE_HEALTHY] == 1).nonzero()[0]]
     
-    population[to_infect, STATE_HEALTHY] = 0
-    population[to_infect, STATE_INCUBATING] = 1
+    population[infectees, STATE_HEALTHY] = 0
+    population[infectees, STATE_INCUBATING] = 1
     return
 ```
 
 The one sneaky thing going on here is the `.nonzero()[0]` call:
 ```python
-population[:,STATE_HEALTHY] == 1
+population[to_infect,STATE_HEALTHY] == 1
 ```
 returns a boolean array of the same shape as `population`, and we want to select the indices of the true values.
 `.nonzero()` returns the indicies of nonzero values, but it returns a tuple---and we're only interested in the first element of that tuple.
@@ -336,9 +332,10 @@ Running the simulation with the parameters gives me the following results:
 
 In particular:
 
-* The peak number of sick people was 734,077 -- 73% of the population.
-* The peak occured 66 days after the first sick case was observed.
-* After 180 days, about 26,866 people had died -- 2.7% of the population.
+* Overall, 884,326 people were infected -- 88.4% of the population.
+* The peak number of sick people was 515,541 -- 52% of the population.
+* The peak occured 70 days after the first sick case was observed.
+* After 300 days, about 24,433 people had died -- 2.4% of the population.
 * Sick cases generally lagged the number of incubating cases by about 5 days.
 * For cases that ended in death, death generally resulted after about 14 days of illness.
 * When the person survived, recovery generally occurred after about 21 days of illness.
@@ -357,15 +354,16 @@ For the purposes of the simulation, I'll assume that the measures are enacted 3 
 
 ![Simulation 2](/images/posts/2020-3-23/sim-2.png)
 
-* The peak number of infected is 432,774 -- 43% of the population
-* The peak occurs 195 days after the first sick case is observed
-* After 360 days, about 26,593 people had died -- again, 2.7% of the population.
+* The total number of infections was 387,802 -- 38.8% of the population.
+* The peak number of infected is 68,045 -- 6.8% of the population.
+* The peak occurs 225 days after the first sick case is observed.
+* After 365 days, about 10,841 people had died -- 10.8% of the population.
 
 Under the assumptions of our simulation, varying the time the measures are enacted has a significant impact on the time at which the peak number of sick persons occurs:
 Moving the social distancing measures a week earlier (to 14 days into the simulation) pushes out the peak 3 weeks (to 220 days into the simulation).
 It doesn't affect the height of the peak---instead, this is controlled by the effectiveness of the measures themselves.
 
-For example, measures that reduce $R_0$ from 2.4 to 1.2 (above) result in a peak number of cases that's 41% lower than without any measures at all, whereas reducing from 2.4 to 1.8  result in a peak number of cases of 674,291, only a 9% reduction in peak height (below).
+For example, measures that reduce $R_0$ from 2.4 to 1.2 (above) result in a peak number of cases that's 86% lower than without any measures at all, whereas reducing from 2.4 to 1.8  result in a peak number of cases of 336,169, only a 35% reduction in peak height (below).
 
 ![Simulation 3](/images/posts/2020-3-23/sim-3.png)
 
@@ -378,39 +376,42 @@ What happens?
 ![Simulation 4](/images/posts/2020-3-23/sim-4.png)
 
 The dashed red lines in the figure above indicate the start and stop of social distancing measures, which are assumed to reduce $R_0$ to 1.2.
-Unfortunately for us, all this does is delay the peak: the peak number of sick patients is still close to 72% of the population (at 719,619), but at least the peak occurs 115 days into the simulation, rather than 70 days.
+Unfortunately for us, all this does is delay the peak: the peak number of sick patients is still close to 50% of the population (at 501,244), but at least the peak occurs 123 days into the simulation, rather than 70 days.
+The total dead is still around 2.4%.
 
 Let's suppose instead, we institute social distancing with a 2 months on, 1 month off cadence as explored in [the ICL paper](https://www.imperial.ac.uk/media/imperial-college/medicine/sph/ide/gida-fellowships/Imperial-College-COVID19-NPI-modelling-16-03-2020.pdf):
 
 ![Simulation 5](/images/posts/2020-3-23/sim-5.png)
 
-In our simulated world, this delays the eventual peak from 70 days to about 120 days in, but does not dampen the height of the peak: still about 72% of the population is infected at the peak, and the total dead is about 2.6%.
+In our simulated world, this delays the eventual peak from 70 days to about 120 days in, but only slightly dampens the height of the peak: about 45.9% of the population is infected at the peak, and the total dead is about 2.1%.
+Additionally, a total of 765,654 (77%) people are infected over the lifetime of the outbreak.
 
 Finally, let's do one more simulation---this time, where social distancing is lifted when the rate of new cases slows to **zero** new cases a day, and the total number of sick people is below 20% of the population.
 Social distancing is re-instituted when there are more than 1,000 new cases a day.
-We'll also assume that our social distancing is _extra super effective_: that it reduces $R_0$ to 0.6, a quarter of the initial $R_0$.
 
 ![Simulation 6](/images/posts/2020-3-23/sim-6.png)
 
-In this case, at its peak, 323,638 people are sick with the virus 178 days into the simulation.
-The total mortality rate remains stubbornly consistent, with 26,749 dead after 360 days.
-The lockdowns are imposed from days 21 to 39, days 66 to 83, days 92 to 109, days 117 to 133, days 140 to 156, and days 163 to 197, with the largest peak in infections occuring during the last lockdown.
+In this case, at its peak, 119,669 people are sick with the virus 200 days into the simulation.
+The total mortality rate remains stubbornly consistent, with 20,409 dead after 360 days.
+The lockdowns are imposed from days 21 to 156, days 163 to 180, and days 190 to 201, with the largest peak in infections occuring during the last lockdown.
+Overall, 739,714 people catch the virus.
 
 
 ## Concluding thoughts
 
 This simulation approach is overly simplistic, and obviously gets a few things wrong.
 To start, every simplifying assumption is likely false.
-Another possibly less obvious error is that the model assumes that over time, everyone eventually either dies or recovers from the disease.
-In the academic literature, this is considered highly unlikely: even the most pessimistic published forecasts for COVID-19 seem to put an upper limit of about 60 to 70% of the population being infected by the disease at some point over the next year.
-I am not an epidemiologist, but I suspect that one part of the discrepancy is that more sophisticated simulations do not assume homogenous mixing of the population, i.e. that every person in the population may potentially interact with any other in a uniform way.
+Another possibly less obvious error is that the model is rather pessimistic about the total number of infections (usually in the neighborhood of 75% of the population).
+Even the most pessimistic forecasts generally don't go this high.
+I am not an epidemiologist, but I suspect that one potential source of error is that more sophisticated simulations do not assume homogenous mixing of the population, i.e. that every person in the population may potentially interact with any other in a uniform way.
 It's possible that a graph-theoretic approach (simulate a random graph of the connections within the population, and allow the virus to propogate out from one of the nodes) may be more suitable, and can also better model social distancing via pruning of edges of the graph.
+(In particular, even starting from a connected graph, this approach would eventually lead to a a graph with multiple disjoint components.)
 
 All that being said, this exercise did leave me with a few conclusions:
 
 * $R_0$ matters a lot: the more we can do to reduce the probability of passing along the virus, even if you're not in an at-risk population yourself, the fewer overall deaths we'll see.
 * Lockdown directives can lower the peak infection number and delay the peak, but only while they're in place. It's likely that lifting any shelter-in-place or lockdown directives will lead to a resurgence in the virus.
-* The overall number of deaths due to the virus is relatively unaffected by social distancing measures. This suggests to me that the most effective way to reduce the number of deaths is through better treatment (e.g. antiviral medication or a vaccine), rather than social measures.
+* The overall number of deaths due to the virus is relatively unaffected by part-time social distancing measures. To reduce fatalities, we must directly lower $R_0$, for a prolonged period of time at likely significant social cost, or change the CFR. This suggests to me that the most effective way to reduce the number of deaths is through better treatment (e.g. antiviral medication or a vaccine), rather than social measures.
 
 Finally, it's clear to me that **we're in this for the long haul**.
 Anyone who thinks that come April 1st or even April 30th, the lockdowns can be lifted and the virus will just disappear is kidding themselves.
