@@ -357,7 +357,7 @@ For the purposes of the simulation, I'll assume that the measures are enacted 3 
 * The total number of infections was 387,802 -- 38.8% of the population.
 * The peak number of infected is 68,045 -- 6.8% of the population.
 * The peak occurs 225 days after the first sick case is observed.
-* After 365 days, about 10,841 people had died -- 10.8% of the population.
+* After 365 days, about 10,841 people had died -- 1.08% of the population.
 
 Under the assumptions of our simulation, varying the time the measures are enacted has a significant impact on the time at which the peak number of sick persons occurs:
 Moving the social distancing measures a week earlier (to 14 days into the simulation) pushes out the peak 3 weeks (to 220 days into the simulation).
