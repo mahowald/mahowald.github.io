@@ -86,7 +86,7 @@ It's impossible to say without a good randomized sample to compare to, and we do
 What I prefer to look at is the number of reported COVID-19 **deaths**.
 This information is, in my opinion, more reliable: we tend to notice and record when somebody dies, and it stands to reason that the majority of COVID-19 deaths would occur in a hospital setting where they are likely to properly attributed to COVID-19.
 (Note that it's likely that we [are still missing at least a few COVID-19 deaths this way](https://www.nytimes.com/interactive/2020/04/21/world/coronavirus-missing-deaths.html), based on looking at excess deaths over the same period historically.)
-The challenge with looking at deaths is, that doesn't tell us anything about infections directly---we need a model.
+The challenge with looking at deaths is they don't tell us much about infections directly---we need a model.
 
 SIR Models
 ----------
@@ -117,7 +117,17 @@ $$
 
 Here, $\gamma$ and $\beta$ are the parameters governing the dynamics of the outbreak.
 In particular, $\gamma$ is the daily probability of removal: this is the probability that, on any given day, an infected person either dies or recovers from the illness.
-$\beta$ is the expected number of infections produced per infected person per day.
+$\beta$ is the expected number of potential disease transmissions produced per infected person per day.
+
+Don't be intimidated by the differential equations, they're actually pretty straightforward!
+
+The first equation is saying that the number of susceptible (never infected) people decreases each day proportional to the average number of potential transmissions per person multiplied by the proportion of transmissions that can actually result in an infection multiplied by the total number of infected people.
+Note that by "potential transmission", I mean "transmissions that would occur if the recipient was susceptible" (i.e. not immune or dead).
+So, at the start of the outbreak, just about everyone a sick person encounters could catch the virus; as time goes on and more people develop immunity (or die), there are fewer opportunities to infect a susceptible person.
+
+The second equation says that the number of infected persons increases each day by the number of new infections, and decreases by the number of removals---$\gamma I$ is the expected number of sick people who recover or die on that day.
+
+And the final equation just says that the number of removals is proportional to the probability of removal per person multiplied by the number of infected persons.
 
 The _reproductive number_ $R_{t}$ is
 
@@ -142,7 +152,7 @@ Model fitting
 
 Here's a plot of the estimated daily deaths due to COVID-19 in Cook County.
 
-![Daily deaths 1](/images/posts/2020-7-10-daily_deaths_1.png)
+![Daily deaths 1](/images/posts/2020-7-10/daily_deaths_1.png)
 
 Note that I've inflated by daily deaths by 10% to account for the fact that not every death due to COVID-19 is reported.
 (This is one of a number of "back of the notebook" estimates that should breed a healthy amount of skepticism about this post!)
@@ -159,7 +169,8 @@ Here, $\lambda$ is a scaling factor, $\exp(\mu - \sigma^{2})$ is the location of
 
 Let's find the best choices of $\lambda$, $\mu$, and $\sigma$ using gradient descent in PyTorch so that we can pretend we're doing deep learning.
 
-First, set up the model:
+First, set up the model.
+I'm initializing $\lambda$ and $\mu$ to eyeball guesses from the observed deaths data.
 
 ```python
 import torch
@@ -277,4 +288,4 @@ $R_{t} = R_{0} S/N $.
 If $R_{0} \approx 2.4$, then we need $S/N \leq 0.42$, that is, at least 58% of the population needs to catch the virus---and we're a long ways away from that!
 
 If you're interested in learning more about this subject, SIR models are surprisingly easy to get into, and generalize naturally to more sophisticated state-based approaches.
-Also, if you know another good way to model $I$ from publicly available data, I'd love to hear about it!
+Also, if you know another good way to model $I$ from publicly available data, or have a technique for estimating the IFR from observeable data, I'd love to hear about it!
