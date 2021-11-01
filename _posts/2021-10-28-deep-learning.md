@@ -137,6 +137,7 @@ Thus, intuitively, the gradient direction is the direction of greatest change in
 The gradient defines a vector field on the domain of $f$, so for any point $p_0 \in \mathbb{R}^n$ there's a curve $\gamma (t)$ defined by
 
 $$\gamma(0) = p_0$$
+
 $$\dot{\gamma}(t) = \left. \nabla f \right|_{p = \gamma(t)}$$
 
 called the **gradient flow line**.
