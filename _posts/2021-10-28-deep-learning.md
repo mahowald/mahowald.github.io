@@ -13,7 +13,7 @@ How does it work?
 And is it really a path toward general artificial intelligence?
 I'll attempt to answer all of these questions and more in this 3-part series.
 
-This post is part 1 of the series. You can find part 2 [here](TODO), and part 3 [here](TODO).
+This post is part 1 of the series. You can find part 2 [here]({{ site.baseurl }}{% link _posts/2021-11-12-deep-learning-2.md %}), and part 3 [here](TODO).
 
 What is deep learning?
 ======================
