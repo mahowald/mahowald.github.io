@@ -13,7 +13,7 @@ How does it work?
 And is it really a path toward general artificial intelligence?
 I'll attempt to answer all of these questions and more in this 3-part series.
 
-This post is part 1 of the series. You can find part 2 [here]({{ site.baseurl }}{% link _posts/2021-11-12-deep-learning-2.md %}), and part 3 [here](TODO).
+This post is part 1 of the series. You can find part 2 [here]({{ site.baseurl }}{% link _posts/2021-11-12-deep-learning-2.md %}), and part 3 [here]({{ site.baseurl }}{% link _posts/2021-12-24-deep-learning-3.md %}).
 
 What is deep learning?
 ======================
@@ -59,6 +59,7 @@ But, being optimistic folks, we are not deterred by this and will be satisfied i
 To be rigorous, I need to tell you what I mean by close---and there are a few choices here.
 One obvious choice is to minimize the error.
 Let's call the quantity $f(x_i) =: \hat{y}_i$.
+($\hat{y}$ is the conventional notation among data scientists for a _predicted_ value for $y$, whereas the "un-hatted" version indicates the observed value.)
 Then the error for an individual prediction is $y_i - \hat{y}_i$.
 Note that if $\hat{y}_i >> y_i$, then the error is generally large and negative---so minimizing the signed error may not produce predictions that are especially close to the $y_i$.
 To get around this, we may instead try to minimize the **mean absolute error**, that is, choose $W$ and $b$ such that
@@ -72,7 +73,7 @@ If, like me, you enjoy thinking probabilistically, you could instead assume that
 
 $$y - (W x + b) \sim \mathcal{D}$$
 
-and then seek to choose $W$ and $b$ to maximize the probability of seeing the particular batch of observations $\{(x_i, y_i)\}$ that we happened to observe:
+and then seek to choose $W$ and $b$ to _maximize the probability_ (with respect to our model) of seeing the particular batch of observations $\{(x_i, y_i)\}$ that we happened to observe:
 
 $$P(y_i | x_i, W, b, \mathcal{D}) = \prod_{i=1}^{N} P_{\mathcal{D}}(y_i - (W x_i + b))$$
 
@@ -86,7 +87,7 @@ and, taking the logarithm of the previous expression (log is a monotonically inc
 $$\log P(y_i | x_i, W, b) = \sum_{i=1}^{N} -\log( \sigma \sqrt{2 \pi}) - \frac{1}{2} \left( \frac{y_i - \hat{y}_i}{\sigma} \right)^2$$
 
 This quantity is called the **log likelihood**, and we want to find $W$ and $b$ that maximize it, which is equivalent to minimizing $-1 \times \log P$.
-The resulting optimization criterion is
+The resulting optimization criterion (that is, the function we want to minimize) is
 
 $$\mathcal{L}(W, b) = \frac{N}{2} \log(2 \pi) + N \log \sigma + \frac{1}{2 \sigma^2} \sum_{i=1}^{N} \left(y_i - \hat{y}_i \right)^2,$$
 
@@ -375,4 +376,4 @@ Of course, there are many divergences both biological and algebraic between what
 For one thing, [biological neurons are quite a bit more complicated](https://en.wikipedia.org/wiki/Neuron) than this primitive approximation.
 
 Despite (or perhaps because of) the inaccuracy, the name "neural net" stuck, and we are left with it today.
-Next week, we'll take a closer look at how neural nets work and what kinds of functions they can and can't model.
+[Next time]({{ site.baseurl }}{% link _posts/2021-11-12-deep-learning-2.md %}), we'll take a closer look at how neural nets work and what kinds of functions they can and can't model.

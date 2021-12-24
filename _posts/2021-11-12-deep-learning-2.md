@@ -11,7 +11,7 @@ How does it work?
 Why does it work?
 This is part 2 of a 3 part series on deep learning.
 In this post we'll focus on the **how**: how does deep learning work?
-You can find part 1 [here]({{ site.baseurl }}{% link _posts/2021-10-28-deep-learning.md %}) and part 3 [here](TODO).
+You can find part 1 [here]({{ site.baseurl }}{% link _posts/2021-10-28-deep-learning.md %}) and part 3 [here]({{ site.baseurl }}{% link _posts/2021-12-24-deep-learning-3.md %}).
 
 How does deep learning work?
 ============================
@@ -108,7 +108,7 @@ Here's how it works:
 
 First, recall the chain rule---if I have a function $y = f(g(h(x)))$, then
 
-$$\frac{dy}{dx} = \frac{dy}{df} \frac{df}{dg} \frac{dg}{dh} \frac{dh}{dh}$$
+$$\frac{dy}{dx} = \frac{dy}{df} \frac{df}{dg} \frac{dg}{dh} \frac{dh}{dx}$$
 
 Let's write
 
@@ -269,6 +269,8 @@ In addition to the estimated price $$\hat{y}$$, for each bond $x$, we also have 
 This latent representation can be thought of as providing some number of "derived" features that are most predictive of the next trading price of the bond.
 We control how many of these derived features there are (by controlling the dimension of the latent space).
 The larger the size of the latent space, the sparser the representation will be, so if we want a dense embedding of our inputs, we should pick a low dimension.
+(By "dense embedding", I mean an embedding which is not "sparse": if we collect all of the vector representations of our observations and arrange them into the columns of a matrix, the embedding that generated those representations is _sparse_ if there's some change of basis such that that matrix is mostly zeroes; intuitively this means that most dimensions of our embedding are not shared across observations.
+The classic example of a sparse embedding is one-hot encoding---each observation $x_i$ gets mapped to a vector which is entirely zeroes, except for a 1 in the $i$th entry.)
 
 And now we have constructed a powerful tool:
 Bonds whose latent representations are close are bonds who our model expects to trade similarly.
@@ -284,6 +286,7 @@ The simplest version of this approach looks something like this:
 ![Word2Vec](/images/posts/2021-10-28/word2vec.png)
 
 Each input $x_i$ is a "bag of words" representation of the context for the token, that is, a vector whose $k$th entry indicates whether or not the $k$th word from the corpus is present in the context.
+For example, if my vocabulary consists of the three tokens "A", "B", and "C", then the sentence `"A C"` would be encoded as `(1, 0, 1)` (and so would the sentences `"A A C"`, `"C A C"`, etc).
 
 ![context example](/images/posts/2021-10-28/context.png)
 
@@ -299,7 +302,7 @@ $$\mathtt{king}-\mathtt{man} \approx \mathtt{queen}-\mathtt{woman}$$
 which seems to capture something like analogy relationships.
 (The $\approx$ in the equation above means that the points in latent space on the left-hand-side and right-hand-side above are very close.)
 
-This kind of result can be seen as evidence in favor of the [distributional hypothesis](https://en.wikipedia.org/wiki/Distributional_semantics), in that the word representations learned by the model entirely from co-occurrence frequencies seem to capture some semantic information about the word itself.
+This kind of result can be seen as evidence in favor of the [distributional hypothesis](https://en.wikipedia.org/wiki/Distributional_semantics) (which claims that words with similar statistical properties have similar meanings), in that the word representations learned by the model entirely from co-occurrence frequencies seem to capture some semantic information about the word itself.
 But that's a bit of a digression! 
 Much has been written about word vectors, and if you're interested in this kind of thing, there's a [fun introduction here](https://blog.acolyer.org/2016/04/21/the-amazing-power-of-word-vectors/).
 
@@ -380,4 +383,4 @@ This is one reason why nets outperform other "universal approximators" such as p
 Many phenomena look locally linear (that's basically the [core idea of differential geometry](https://en.wikipedia.org/wiki/Differential_geometry)), and nets with ReLU activation have that assumption explicitly baked in.
 
 I'll wrap this post up here.
-In the final part of this series, we'll look at areas where nets have been successful (and also some areas where they have not), and I'll sketch some ideas about _why_ they are so successful.
+In [the final part of this series]({{ site.baseurl }}{% link _posts/2021-12-24-deep-learning-3.md %}), we'll look at areas where nets have been successful (and also some areas where they have not), and I'll sketch some ideas about _why_ they are so successful.
