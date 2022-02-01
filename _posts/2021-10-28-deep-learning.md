@@ -28,6 +28,7 @@ The typical introduction to a neural net begins with a picture like this:
 
 This picture is supposed to be analogous to how biological neural networks work: each circle is a "neuron", which is connected to subsequent downstream neurons.
 An incoming signal activates one or more neurons (say, $x_i$), which then propagate activations downstream to other connected neurons, until finally some combination of output neurons (the $y_i$) are activated to produce the response.
+The "weights" of the network (the $W_j$) determine how activations of upstream neurons influence the activations of downstream ones.
 
 Sounds great, right?
 There's only two problems with this story:
@@ -58,13 +59,15 @@ But, being optimistic folks, we are not deterred by this and will be satisfied i
 
 To be rigorous, I need to tell you what I mean by close---and there are a few choices here.
 One obvious choice is to minimize the error.
-Let's call the quantity $f(x_i) =: \hat{y}_i$.
-($\hat{y}$ is the conventional notation among data scientists for a _predicted_ value for $y$, whereas the "un-hatted" version indicates the observed value.)
-Then the error for an individual prediction is $y_i - \hat{y}_i$.
+Let's call the quantity $f(x_i) =: \hat{y}_i$ .
+( $\hat{y}$ is the conventional notation among data scientists for a _predicted_ value for $y$, whereas the "un-hatted" version indicates the observed value. )
+Then the error for an individual prediction is $y_i - \hat{y}_i$ .
 Note that if $\hat{y}_i >> y_i$, then the error is generally large and negative---so minimizing the signed error may not produce predictions that are especially close to the $y_i$.
-To get around this, we may instead try to minimize the **mean absolute error**, that is, choose $W$ and $b$ such that
+To get around this, we may instead try to minimize the **mean absolute error** (MAE), that is, choose $W$ and $b$ such that
 
 $$f = \arg \min \frac{1}{N} \sum_{i=1}^{N} \left| y_i - \hat{y}_i \right|$$
+
+( $$\arg \min f(x)$$ is the "minimizing argument of $f$ ", that is, a value $x$ which minimizes $f$ .)
 
 ## Maximum likelihood estimation
 
@@ -91,7 +94,7 @@ The resulting optimization criterion (that is, the function we want to minimize)
 
 $$\mathcal{L}(W, b) = \frac{N}{2} \log(2 \pi) + N \log \sigma + \frac{1}{2 \sigma^2} \sum_{i=1}^{N} \left(y_i - \hat{y}_i \right)^2,$$
 
-and if we don't care about $\sigma$ (or we hold it fixed), the minimal argument to $\mathcal{L}$ will be the same as minimizing the **mean squared error**:
+and if we don't care about $\sigma$ (or we hold it fixed), the minimal argument to $\mathcal{L}$ will be the same as minimizing the **mean squared error** (MSE):
 
 $$\mathcal{L}_{MSE}(W, b) = \frac{1}{N} \sum_{i=1}^{N} \left(y_i - \hat{y}_i \right)^2$$
 
@@ -198,7 +201,7 @@ Logistic regression
 In the case of linear regression, both $x$ and $y$ are vectors, and the model $f(x) = W x + b$ is a "regression" model, that is, it produces real numbers as its output.
 
 Many problems in statistics and machine learning are not regression problems, and an important type of problem is **classification**.
-In a classification problem, we may have the same vector inputs $\{ x_i \}_{i=1}^{N}$, where $x_i \in \mathbb{R}^n$.
+In a classification problem, we may have the same vector inputs $$\{ x_i \}_{i=1}^{N}$$ , where $$x_i \in \mathbb{R}^n$$ .
 But, instead of the $y_i$ also being vectors, they are instead class labels.
 
 For example, imagine that we are in a medical setting, and wish to model the impact of various biometric features (say, age and resting heart rate) on patient health.
@@ -377,3 +380,5 @@ For one thing, [biological neurons are quite a bit more complicated](https://en.
 
 Despite (or perhaps because of) the inaccuracy, the name "neural net" stuck, and we are left with it today.
 [Next time]({{ site.baseurl }}{% link _posts/2021-11-12-deep-learning-2.md %}), we'll take a closer look at how neural nets work and what kinds of functions they can and can't model.
+
+_Special thanks to Eric Z., Honghao G., and Alex S. for their comments on this series!_

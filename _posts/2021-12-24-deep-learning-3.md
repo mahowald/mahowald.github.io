@@ -263,3 +263,5 @@ I'll close this series with a quote from [Dijkstra](https://en.wikipedia.org/wik
 
 Deep learning can be a powerful tool when applied correctly.
 Hopefully this series has helped illustrate net's strengths as well as their limitations.
+
+_Special thanks to Eric Z., Honghao G., and Alex S. for their comments on this series!_

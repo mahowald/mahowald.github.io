@@ -384,3 +384,5 @@ Many phenomena look locally linear (that's basically the [core idea of different
 
 I'll wrap this post up here.
 In [the final part of this series]({{ site.baseurl }}{% link _posts/2021-12-24-deep-learning-3.md %}), we'll look at areas where nets have been successful (and also some areas where they have not), and I'll sketch some ideas about _why_ they are so successful.
+
+_Special thanks to Eric Z., Honghao G., and Alex S. for their comments on this series!_
