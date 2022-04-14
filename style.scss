@@ -18,16 +18,71 @@ html {
 }
 
 body {
-	background: $white;
+	background: $lighterGray;
   font: 18px/1.4 $helvetica;
   color: $darkGray;
 }
 
 .container {
-  margin: 0 auto;
-  max-width: 740px;
-  padding: 0 10px;
-  width: 100%;
+  padding: 10px 15px;
+}
+
+.supercontainer {
+    margin: 0 auto;
+    max-width: 740px;
+    padding: 0px;
+    width: 100%;
+    background: $white;
+    box-shadow: 0px 0px 10px #888888;
+    clip-path: inset(0px -15px 0px -15px);
+}
+
+.homesupercontainer {
+    margin: 0 auto;
+    max-width: 1240px;
+    padding: 0px;
+    width: 100%;
+    background: $white;
+    box-shadow: 0px 0px 10px #888888;
+    clip-path: inset(0px -15px 0px -15px);
+}
+
+.homebox {
+    padding: 10px;
+    margin: 30px;
+    width: 343px;
+    height: 225px;
+    float: left;
+    box-shadow: 0px 0px 10px #b9b9b9;
+
+    h3 {
+        margin: 0px;
+    }
+}
+
+.home-subcontainer {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.homereadmore {
+    clear: both;
+}
+
+a.readmore{
+    background-color: $blue;
+    color: $white;
+    &:hover{
+        color: $white;
+    }
+    padding: 8px 19px;
+    text-align: center;
+    border: 1px solid $lightGray;
+    border-radius: 5px;
+    margin-right: 27px;
+
+    float: right !important;
+
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -59,6 +114,8 @@ h1.title {
     font-size: 40px;
     text-align: center;
     border-bottom: none;
+    margin-top: 0px;
+    padding-top: 1em;
 }
 
 h1.post {
@@ -75,10 +132,16 @@ h1.post {
 
 h2 {
   font-size: 24px;
+  a {
+    color: inherit;
+  }
 }
 
 h3 {
   font-size: 20px;
+  a {
+    color: inherit;
+  }
 }
 
 h4 {
@@ -176,13 +239,13 @@ img {
 //
 
 .wrapper-masthead {
-  margin-bottom: 30px;
-  // background-color: $darkerGray;
+  margin-bottom: 0px;
+  background-color: $white;
 }
 
 .masthead {
   padding: 10px 45px;
-  border-bottom: 1px solid $lightGray;
+  border-bottom: 1px solid $darkerGray;
 
 
   @include mobile {
@@ -305,10 +368,14 @@ nav {
 }
 
 .wrapper-footer {
-  margin-top: 50px;
+  margin-top: 0px;
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   background-color: $lightGray;
+
+  .container{
+      background-color: $lightGray;
+  }
 }
 
 footer {

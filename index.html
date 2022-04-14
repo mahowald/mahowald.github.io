@@ -2,20 +2,44 @@
 layout: home
 ---
 
+<h2>Welcome!</h2>
+
+<p>This is a blog primarily about topics in mathematics, machine learning,
+    and technology, but occasionally about other things. Did I write something you want to use in your own work? Please do!
+    All code is <a href="https://opensource.org/licenses/MIT">MIT licensed</a>; any other content is 
+    licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1">CC-BY-NC</a> 
+    unless otherwise indicated.
+</p>
+
+<p>New posts every couple of months!</p>
+
+
+<h1 class="title">Latest Posts:</h1>
+
 <div class="posts">
-  {% for post in site.posts limit:3 %}
-    <article class="post">
+    <div class="home-subcontainer">
+    {% for post in site.posts limit:3 %}
+        <div class="homebox">
+            <article class="post">
 
-      <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
+            <h3><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h3>
 
-      <div class="entry">
-          <div class="date">
-              {{ post.date | date: "%B %e, %Y" }}
-          </div>
-        {{ post.excerpt }}
-      </div>
+            <div class="entry">
+                {{ post.tagline }}
+                <div class="date">
+                    {{ post.date | date: "%B %e, %Y" }}
+                </div>
+            </div>
 
-      <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
-    </article>
-  {% endfor %}
+            <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
+            </article>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+<div class="homereadmore">
+    <a class="readmore" href="{{ site.baseurl }}/posts">Older posts ❯</a>
+</div>
+<div class="homereadmore">
 </div>
