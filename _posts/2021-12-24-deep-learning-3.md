@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Everything I know about Deep Learning: Part III"
+tagline: "The thrilling conclusion that has everyone asking, what's your PhD in again?"
 tags: [nonsense]
 author: Matthew Mahowald
 mathjax: true

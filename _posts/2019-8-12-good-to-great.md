@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Good to great?"
+tagline: "Come at me, Jim Collins"
 tags: [management]
 author: Matthew Mahowald
 mathjax: true

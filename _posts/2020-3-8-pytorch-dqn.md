@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Playing TicTacToe with a DQN, redux"
+tagline: "Really more of a shallow Q network"
 tags: [deep-q-networks]
 author: Matthew Mahowald
 mathjax: true

@@ -1,10 +1,14 @@
 ---
-layout: page
+layout: default
 title: About
 permalink: /about/
 ---
 
-I'm a mathematician and programmer working in machine learning (or, as the cool kids call it, "Artificial Intelligence").
+<h1 class="title">About Me</h1>
+
+Hi! My name is Matthew Mahowald.
+
+I'm a mathematician and programmer working in machine learning (or, as the cool kids at Gartner call it, "Artificial Intelligence").
 
 These days, I'm chief scientist at a stealth fintech startup.
 I was formerly Data Science Group Lead at [Crowe LLP](https://www.crowe.com/), and, before that, Director of Data Science at Open Data Group (since renamed to [ModelOp](https://www.modelop.com/)).

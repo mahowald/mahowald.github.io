@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Playing TicTacToe with a DQN"
+tagline: "A curious game"
 tags: [deep-q-networks]
 author: Matthew Mahowald
 mathjax: true

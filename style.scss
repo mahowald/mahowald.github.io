@@ -58,6 +58,19 @@ h1 {
 h1.title {
     font-size: 40px;
     text-align: center;
+    border-bottom: none;
+}
+
+h1.post {
+  font-size: 25px;
+  a {
+    color: inherit;
+  }
+  margin-bottom: 0px;
+
+  display: block;
+  width: 100%;
+  border-bottom: none;
 }
 
 h2 {
@@ -83,6 +96,9 @@ a {
 	cursor: pointer;
   &:hover, &:active {
     color: $blue;
+  }
+  &:hover {
+      text-decoration: underline;
   }
 }
 
@@ -160,12 +176,14 @@ img {
 //
 
 .wrapper-masthead {
-  margin-bottom: 50px;
+  margin-bottom: 30px;
+  // background-color: $darkerGray;
 }
 
 .masthead {
-  padding: 20px 0;
+  padding: 10px 45px;
   border-bottom: 1px solid $lightGray;
+
 
   @include mobile {
     text-align: center;
@@ -201,12 +219,16 @@ img {
 
 .site-name {
   margin: 0;
-  color: $darkGray;
+  color: $lightGray;
   cursor: pointer;
   font-family: $helveticaNeue;
-  font-weight: 300;
-  font-size: 28px;
+  font-weight: 350;
+  font-size: 24px;
   letter-spacing: 1px;
+
+  a {
+      color: $darkerGray;
+  }
 }
 
 .site-description {
@@ -221,9 +243,10 @@ img {
 
 nav {
   float: right;
-  margin-top: 23px; // @TODO: Vertically middle align
+  margin-top: 10px; // @TODO: Vertically middle align
   font-family: $helveticaNeue;
   font-size: 18px;
+  color: $darkerGray;
 
   @include mobile {
     float: none;
@@ -233,8 +256,9 @@ nav {
   }
 
   a {
-    margin-left: 20px;
-    color: $darkGray;
+    margin-left: 10px;
+    margin-right: 10px;
+    color: $darkerGray;
     text-align: right;
     font-weight: 300;
     letter-spacing: 1px;

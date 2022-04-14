@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Exponential smoothing like a Bayesian"
+tagline: "No frequentists were harmed in the smoothing process"
 tags: [quant]
 author: Matthew Mahowald
 mathjax: true

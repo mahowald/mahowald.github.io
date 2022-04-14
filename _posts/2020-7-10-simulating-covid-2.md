@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "More ill-advised COVID-19 modeling"
+tagline: "Never let this man become an epidiemologist"
 tags: [iamnotanepidiemologist]
 author: Matthew Mahowald
 mathjax: true

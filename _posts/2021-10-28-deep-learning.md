@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Everything I know about Deep Learning: Part I"
+tagline: "TLDR: Very little"
 tags: [nonsense]
 author: Matthew Mahowald
 mathjax: true

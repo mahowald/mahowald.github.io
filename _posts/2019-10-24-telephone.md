@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "A minimal RESTful API wrapper"
+tagline: "For when your boss says you need an API but you can't be bothered to use FastAPI"
 tags: [docker, golang]
 author: Matthew Mahowald
 mathjax: true

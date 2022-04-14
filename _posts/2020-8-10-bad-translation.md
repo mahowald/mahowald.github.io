@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "How NOT to build a sequence-to-sequence translator"
+tagline: "j ai appris beaucoup aujourd"
 tags: [bad,nlp]
 author: Matthew Mahowald
 mathjax: true

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Simulating COVID-19 (like an idiot)"
+tagline: "I prefer to think of it as a lock-UP"
 tags: [iamnotanepidiemologist]
 author: Matthew Mahowald
 mathjax: true

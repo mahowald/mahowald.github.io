@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Whatly regards her speechitating?"
+tagline: "In which I write almost 2000 words to impress Zach Wienersmith"
 tags: [nonsense]
 author: Matthew Mahowald
 mathjax: true

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Semantic search and short topic models"
+tagline: "I've heard it both ways"
 tags: [NLP]
 author: Matthew Mahowald
 mathjax: true

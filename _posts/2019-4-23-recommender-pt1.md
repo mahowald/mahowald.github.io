@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Building a Recommender System, Part 1"
+tagline: "Check this post out, everybody's reading it"
 tags: [recommender]
 author: Matthew Mahowald
 mathjax: true

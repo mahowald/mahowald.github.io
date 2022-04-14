@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Stochastic Gradient-free Descent in Julia"
+tagline: "Where we're going, we don't need gradients"
 tags: [data science]
 author: Matthew Mahowald
 mathjax: true

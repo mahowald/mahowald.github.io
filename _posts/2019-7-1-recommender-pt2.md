@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Building a Recommender System, Part 2"
+tagline: "I think I have a good shot at winning the Netflix prize"
 tags: [recommender, tensorflow]
 author: Matthew Mahowald
 mathjax: true
