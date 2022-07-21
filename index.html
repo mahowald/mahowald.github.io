@@ -1,45 +1,51 @@
 ---
-layout: home
+layout: default
 ---
 
 <h2>Welcome!</h2>
 
 <p>This is a blog primarily about topics in mathematics, machine learning,
-    and technology, but occasionally about other things. Did I write something you want to use in your own work? Please do!
-    All code is <a href="https://opensource.org/licenses/MIT">MIT licensed</a>; any other content is 
-    licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1">CC-BY-NC</a> 
-    unless otherwise indicated.
+    and technology, but occasionally about other things.
 </p>
 
 <p>New posts every couple of months!</p>
 
 
-<h1 class="title">Latest Posts:</h1>
+<h1 class="title" style='text-align: left'>Latest Posts:</h1>
 
 <div class="posts">
-    <div class="home-subcontainer">
     {% for post in site.posts limit:3 %}
-        <div class="homebox">
-            <article class="post">
+        <article class="post">
 
-            <h3><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h3>
+        <h1><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h1>
 
-            <div class="entry">
-                {{ post.tagline }}
-                <div class="date">
-                    {{ post.date | date: "%B %e, %Y" }}
-                </div>
+        <div class="entry">
+            {{ post.tagline }}
+            <div class="date">
+                {{ post.date | date: "%B %e, %Y" }}
             </div>
 
-            <a href="{{ site.baseurl }}{{ post.url }}" class="read-more">Read More</a>
-            </article>
+            {{ post.excerpt }}
+
         </div>
+
+        <a href="{{ site.baseurl }}{{ post.url }}" class="read-more2">Keep reading...</a>
+        </article>
     {% endfor %}
-    </div>
 </div>
 
 <div class="homereadmore">
     <a class="readmore" href="{{ site.baseurl }}/posts">Older posts ❯</a>
 </div>
-<div class="homereadmore">
+
+<hr />
+
+<div class="licensing">
+<p>
+    Did I write something you want to use in your own work? (I'm seriously flattered!) Please do:
+    All code is <a href="https://opensource.org/licenses/MIT">MIT licensed</a>; any other content is 
+    licensed <a href="https://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1">CC-BY-NC</a> 
+    unless otherwise indicated.
+    (If neither of those licenses work, let's get in touch.)
+</p>
 </div>

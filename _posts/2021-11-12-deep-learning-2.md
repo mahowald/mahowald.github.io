@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Everything I know about Deep Learning: Part II"
+title: "Everything I know about Deep Learning (II)"
 tagline: "Just like everything else, it's linear algebra"
 tags: [nonsense]
 author: Matthew Mahowald

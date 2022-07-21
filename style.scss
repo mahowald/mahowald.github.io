@@ -74,7 +74,11 @@ body {
 }
 
 .homereadmore {
-    clear: both;
+    // clear: both;
+    padding-bottom: 3em;
+    padding-top: 2em;
+    margin: 0 auto;
+    text-align: center;
 }
 
 a.readmore{
@@ -87,10 +91,10 @@ a.readmore{
     text-align: center;
     border: 1px solid $lightGray;
     border-radius: 5px;
-    margin-right: 27px;
+    // margin-right: 27px;
 
-    float: right !important;
-
+    display: inline-block;
+    // float: right !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -373,6 +377,12 @@ nav {
     text-transform: uppercase;
     font-size: 15px;
   }
+
+  .read-more2 {
+    text-transform: uppercase;
+    font-size: 15px;
+    float: right;
+  }
 }
 
 .wrapper-footer {
@@ -416,4 +426,12 @@ img {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.licensing {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    font-style: italic;
+    font-size: 14px;
 }

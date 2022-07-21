@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Everything I know about Deep Learning: Part I"
+title: "Everything I know about Deep Learning (I)"
 tagline: "TLDR: Very little"
 tags: [nonsense]
 author: Matthew Mahowald
