@@ -6,7 +6,7 @@ permalink: /posts/
 
 <h1 class="title">All Posts</h1>
 
-Here you can read a selection of my finest words, listed in reverse chronological order!
+Conveniently listed in reverse chronological order!
 
 <div class="posts">
   {% for post in site.posts %}

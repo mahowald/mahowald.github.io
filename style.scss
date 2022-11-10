@@ -435,3 +435,23 @@ img {
     font-style: italic;
     font-size: 14px;
 }
+
+.featured-container {
+    display: flex;
+}
+
+.featured-container li {
+    margin: 10px 0;
+}
+
+.featured-container a {
+    font-weight: bold;
+}
+
+.home-left {
+    flex: 0 0 50%;
+}
+
+.home-right {
+    flex: 1;
+}
