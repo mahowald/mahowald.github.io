@@ -4,7 +4,8 @@ layout: default
 <div class="toc">
     <h5>{{ page.title }}</h5>
     <hr />
-    {{ content | toc_only }}
+    <!-- see https://github.com/allejo/jekyll-toc -->
+    {% include toc.html html=content %}
 </div>
 
 <article class="post">
