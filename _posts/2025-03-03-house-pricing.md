@@ -278,6 +278,12 @@ This seems like a big number (and it is), but remember that this model operates 
 It can be more informative to look at the MAE of the log prices (equivalent to the percentage error on the price).
 In this case, the MAE of the log price is 0.152, which is about 16.5%.
 
+Spot checking the residuals of the ordinary least squares model, the results look reasonable:
+
+[![OLS residuals](/images/posts/2025-03-04/ols-residuals.png)](/images/posts/2025-03-04/ols-residuals.png)
+
+(As a reminder, the dashed line is "x = y", i.e., the closer a model's predictions are to that line, the better fit the model is.)
+
 Bayesian linear regression
 --------------------------
 
@@ -639,17 +645,84 @@ However, observe that each city has a distinct distribution, resulting in _great
 This hierarchical model, while beating our previous linear regressions, actually underperforms the intercept-only hierarchical model on the out-of-sample dataset: its MAE is 81,552.
 (This is one way to tell that the numbers weren't fudged!)
 
+### Model 3: Alternative hierarchies
+
+One reason the hierarchical models here have not made a significant difference might be that "city" is too broad, and house prices vary geographically within each city.
+For instance, here is a heatmap of the log prices overlayed on top of a concave hull bounding each city region:
+
+[![heatmap](/images/posts/2025-03-04/heatmap-home-prices.png)](/images/posts/2025-03-04/heatmap-home-prices.png)
+
+One city (the "green"-ish one starting from the lower-left of the diagram) covers a large geographical area, and there may be meaningful differences in location between properties in the southwest region as compared to those in the eastern portion.
+To get more granular group assignments, we could instead construct a cluster assignment using the latitude and longitude of each property.
+
+This is easily done with `Clustering.jl`.
+Here, I used k-means clustering with 20 cluster assignments:
+
+```julia
+clusters = let
+    X = Matrix{Float64}(df |> 
+        @select(:LATITUDE, :LONGITUDE) |> 
+        DataFrame)
+    X = transpose(X)
+    R = kmeans(X, 20; maxiter=200, display=:iter)
+    assignments(R)
+end
+```
+
+[![clusters](/images/posts/2025-03-04/clusters.png)](/images/posts/2025-03-04/clusters.png)
+
+Integrating this into our hierarchical model is essentially the same as using the "City" grouping---the only difference is we should supply the cluster index instead of the city index.
+
+```julia
+G = df.CLUSTER
+G_train = df.CLUSTER[1:1200];
+G_test = df.CLUSTER[1201:end];
+
+# 20 clusters
+model = hiearch_regr(X_train, y_train, X_train[:,2], G_train, 20)
+```
+
+There are distinctly different intercepts learned for each cluster, suggesting that geographic location _does_ play an impact in determining the home price:
+
+[![cluster intercepts](/images/posts/2025-03-04/lambda-density-2.png)](/images/posts/2025-03-04/lambda-density-2.png)
+
+However, despite these efforts, the final performance of the model is still only about on-par with our original ordinary least squares approach:
+The MAE on the out-of-sample set is in fact worse, at `86987.3` vs `83188.9`.
+
+In general, a comparison of the out-of-sample residuals between the two models shows that, although there are some cases (the green arrows) where our hierarchical model did better, on balance it is slightly worse:
+
+[![residual comparison](/images/posts/2025-03-04/residuals-compare.png)](/images/posts/2025-03-04/residuals-compare.png)
+
+So what gives?
+
+To get an idea of what's going on, it is instructive to look at the in-sample performance of this hierarchical model:
+The in-sample MAE is `52904.3`, as compared to the OLS model's `56461.8`.
+This suggests that, unsurprisingly, adding more learnable parameters to our model has improved our in-sample performance at the cost of generalization.
+
+What happens if we add our cluster assignment as a categorical feature accessible to our OLS model?
+Unsurprisingly, it improves the in-sample error by quite a bit---to `50817.5`.
+Perhaps more surprisingly, it also improves the _out-of-sample_ error as well, to `71730.8`.
+What's more, several of the cluster assignments are statistically significant---in particular, clusters 5, 8, 13, and 18.
+
+This is reflected both in the distributions learned by our hierarchical model (see the density plot above), as well as in the heatmap itself:
+
+[![heatmap](/images/posts/2025-03-04/heatmap-2.png)](/images/posts/2025-03-04/heatmap-2.png)
+
+In particular, the coefficient associated with cluster 13 is `-0.0933`, suggesting a negative impact relative to the baseline property value for that cluster; similarily it is `-0.1071` for cluster 8 and `-0.1522` for cluster 5: all cases where the expected property values in these regions are significantly below the baseline.
+Cluster 18 is an outlier in the other direction: its coefficient of `0.2045` indicates a significant positive impact to being located in that cluster.
+
 
 Future directions
 =================
 
-There's a number of places one could take this model from here.
+As is often the case with statistics, this is a somewhat unsatisfying conclusion to our story: despite our best efforts, our Bayesian hierarchical model has failed to outperform the simplest imaginable baseline.
+But your journey needn't end here---there are still a number of ways one could evolve this approach.
 For instance:
 
 * The categorical home type variable (single-family residence / condo / townhouse) is also a suitable choice for a multilevel model.
-* City alone may be too broad a geographic area: the Redfin dataset also provides a neighborhood label for more granularity, _and_ a street address for an even finer-tuned segmentation.
+* Our clusters may cover too broad a geographic area, or may be imperfect in other ways (e.g. shape): the Redfin dataset also provides a neighborhood label for more granularity, _and_ a street address for an even finer-tuned segmentation.
 * Past transactions on the same home may also be informative: pricing models frequently take into account the price history of an asset, if available (this was not available in the current dataset, though).
 
-In any event, my goal with this post wasn't to develop a perfect house pricing model (so, uh, goal achieved?), but rather to provide a motivating example for building a hierarchical model using Julia.
+In any event, my goal with this post wasn't to develop a perfect house pricing model (so, uh, mission accomplished?), but rather to provide a motivating example for building a hierarchical model using Julia.
 And arguably Julia has excelled at this: we were able to handle data manipulation and cleaning in an intuitive way from start to finish, plus work with a probablistic programming framework (Turing) from within the language itself.
 Speaking personally, Julia has largely replaced R as my statistical analysis tool of choice---and who knows, as packages like [Flux.jl](https://fluxml.ai/Flux.jl/stable/) mature, maybe it will replace Python as well!
