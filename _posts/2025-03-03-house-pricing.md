@@ -68,7 +68,8 @@ end
 # and other invalid data
 df = df |> 
     @select( :PRICE, :SOLD_DATE, :SQUARE_FEET, 
-        :BEDS, :BATHS, :PROPERTY_TYPE, :CITY, :PRICE_SQFT) |>
+        :BEDS, :BATHS, :PROPERTY_TYPE, :CITY, :PRICE_SQFT,
+        :LATITUDE, :LONGITUDE) |>
     @dropna() |>
     @mutate(SOLD_DATE = parse_custom_date(_.SOLD_DATE)) |>
     @filter(_.SQUARE_FEET > 1) |>
@@ -99,6 +100,28 @@ Exploratory data analysis
 Before diving into model building, let's spend a minute to take a quick look at our data and see if we can tease out some relationships between our covariates.
 Exploratory data analysis, even on a toy problem like this, can be very valuable.
 For one thing, the relationships between our covariates and the response will help us sanity check the coefficients on our models.
+
+Price distribution
+------------------
+
+Before we look at any of the covariates, it is useful to ask the question "how are prices distributed?"
+Prices are non-negative (outside of certain exceptional circumstances, house prices generally cannot sell for less than 0 dollars) but uncapped (a house can be arbitrarily expensive).
+A good starting point for this kind of variable is a [log-normal distribution](https://en.wikipedia.org/wiki/Log-normal_distribution).
+We can check how closely our data matches this distribution using a [Q-Q plot](https://en.wikipedia.org/wiki/Q%E2%80%93Q_plot):
+
+
+[![Q-Q plot](/images/posts/2025-03-04/qq-plot.png)](/images/posts/2025-03-04/qq-plot.png)
+
+A Q-Q plot compares the quantiles of two distributions.
+In this case, we're comparing the empirical quantiles of our price data against the predicted quantiles if the data followed the best-fitting log-normal distribution.
+I've plotted the data on a log scale so that observations are more evenly distributed visually (otherwise, the outlying high prices would be very far away from the rest of the data).
+
+A perfect match against the log-normal distribution would have all of the observations on the green "y = x" diagonal.
+This plot is not perfect, but it's a pretty close fit.
+At very low prices, the observed quantiles are larger than expected, i.e., the observed price at, say, the 3rd percentile is larger than would be expected if this perfectly matched a log-normal distribution.
+This suggests that there's a higher "floor" on prices than would be expected from a log-normal distribution.
+
+This mismatch disappears rapidly, and otherwise the prices seem to very closely follow a log-normal distribution.
 
 Prices over time
 ----------------
@@ -211,7 +234,7 @@ $$\hat{y} = \exp({X \beta})$$
 
 or, alternatively,
 
-$$\log(y) \sim \mathcal{N}(X \beta, \sigma)$$
+$$\log(y) \sim N(X \beta, \sigma)$$
 
 where $y$ is the sale price, $\beta$ is our model's coefficients, $X$ the input matrix, and $\sigma$ the standard deviation.
 
@@ -401,9 +424,8 @@ The modification is minimal:
     β ~ MvNormal(zeros(p), 10.0 * I)
     σ ~ truncated(Normal(0, 5), 0, Inf)
     μ = X * β
-    for i in 1:n
-        y[i] ~ LogNormal(μ[i], σ)
-    end
+
+    y ~ MvLogNormal(μ, σ * I)
 end
 
 model = lognorm_regr(X_train, y_train)
@@ -447,19 +469,18 @@ Here's our modified model:
 ```julia
 @model function heteroskedastic_regr(X, y, t)
     n, p = size(X)
-    β ~ MvNormal(zeros(p), 10.0 * I)
-    μ = X * β
-    
-    # implement heteroskedasticity
+    β ~ MvNormal(vcat([8.16], zeros(p-1)), 10.0 * I)
     σ0 ~ truncated(Normal(0, 5), 0, Inf)
-    α ~ truncated(Normal(0, 0.1), 0, Inf)
-    σ = σ0 * exp.(α * t)
 
-    for i in 1:n
-        y[i] ~ LogNormal(μ[i], σ[i])
-    end
+    α ~ truncated(Normal(0, 5), 0, Inf)
+    σ = σ0 * exp.(α .* t)
+    
+    μ = X * β
+    y ~ MvLogNormal(μ, Diagonal(σ))
 end
 ```
+
+The `8.23` intercept prior is taken from our result from OLS above.
 
 Note that this accepts an additional argument, `t`, which by my convention represents how far in the past the observation occurred, measured in years.
 
@@ -493,6 +514,10 @@ and we find some slight changes in our coefficients:
 The new $\alpha$ parameter has the following distribution:
 
 [![alpha](/images/posts/2025-03-04/alpha-density.png)](/images/posts/2025-03-04/alpha-density.png)
+
+The model's inferred heteroskedasticity is plotted below:
+
+[![variance decay](/images/posts/2025-03-04/variance-decay.png)](/images/posts/2025-03-04/variance-decay.png)
 
 This model also has a slightly improved MAE of 84,409 compared to our previous attempt.
 (For those following along at home, it also does very slightly better at predicting the price of out-of-sample home 13---guessing 506k this time around.)
@@ -535,15 +560,15 @@ Let's look at two different ways to construct a hierarchical model from our exis
 The simplest way to introduce a hierarchy is to allow only one of our covariates (the intercept) to vary by location.
 In other words, the model is
 
-$$y_{i} \sim \log \mathcal{N}( X_{i} \cdot \beta + \lambda_{g}, \sigma_{i}) $$
+$$y_{i} \sim \log N( X_{i} \cdot \beta + \lambda_{g}, \sigma_{i}) $$
 
 where
 
-$$\beta_{j} \sim \mathcal{N}(0, 5)$$
+$$\beta_{j} \sim N(0, 5)$$
 
-$$\lambda_{0} \sim \mathcal{N}(0, 5)$$
+$$\lambda_{0} \sim N(0, 5)$$
 
-$$\lambda_{g} \sim \mathcal{N}(\lambda_{0}, 5)$$
+$$\lambda_{g} \sim N(\lambda_{0}, 5)$$
 
 Here, $\lambda_{0}$ is the global intercept, and $\lambda_{g}$ is the intercept for group $g$.
 
@@ -556,7 +581,7 @@ Here's the model implementation in Julia:
     # global coefficients
     β ~ filldist(Normal(0, 5), p - 1)
     # global intercept
-    λ0 ~ Normal(0, 5)
+    λ0 ~ Normal(8.17, 3)
     
     # group intercepts
     λj ~ filldist(Normal(λ0, 5), nG)
@@ -565,13 +590,8 @@ Here's the model implementation in Julia:
     α ~ truncated(Normal(0, 0.1), 0, Inf)
     σ = σ0 * exp.(α * t)
 
-    for i in 1:n
-        # vector dot product
-        # (use \cdot )
-        μ = X[i,2:end] ⋅ β + λj[G[i]]
-        
-        y[i] ~ LogNormal(μ, σ[i])
-    end
+    μ = X[:,2:end] * β .+ λj[G]
+    y ~ MvLogNormal(μ, Diagonal(σ))
 end
 ```
 
@@ -602,13 +622,9 @@ We can extend our multilevel model to allow for a hierarchical relationship betw
     α ~ truncated(Normal(0, 0.1), 0, Inf)
     σ = σ0 * exp.(α * t)
 
-    for i in 1:n
-        # vector dot product
-        # (use \cdot )
-        μ = X[i,:] ⋅ βj[:,G[i]]
-        
-        y[i] ~ LogNormal(μ, σ[i])
-    end
+    μ = sum(X .* βj[:,G]', dims=2)[:,1]
+
+    y ~ MvLogNormal(μ, Diagonal(σ))
 end
 ```
 
@@ -700,7 +716,7 @@ The in-sample MAE is `52904.3`, as compared to the OLS model's `56461.8`.
 This suggests that, unsurprisingly, adding more learnable parameters to our model has improved our in-sample performance at the cost of generalization.
 
 What happens if we add our cluster assignment as a categorical feature accessible to our OLS model?
-Unsurprisingly, it improves the in-sample error by quite a bit---to `50817.5`.
+As expected, it improves the in-sample error by quite a bit---to `50817.5`.
 Perhaps more surprisingly, it also improves the _out-of-sample_ error as well, to `71730.8`.
 What's more, several of the cluster assignments are statistically significant---in particular, clusters 5, 8, 13, and 18.
 
@@ -711,6 +727,41 @@ This is reflected both in the distributions learned by our hierarchical model (s
 In particular, the coefficient associated with cluster 13 is `-0.0933`, suggesting a negative impact relative to the baseline property value for that cluster; similarily it is `-0.1071` for cluster 8 and `-0.1522` for cluster 5: all cases where the expected property values in these regions are significantly below the baseline.
 Cluster 18 is an outlier in the other direction: its coefficient of `0.2045` indicates a significant positive impact to being located in that cluster.
 
+We can mimic this impact by modifying our hierarchical regression: instead of allowing cluster-specific choices for all of the parameters, we'll do two things:
+
+1. **Have a hierarchical intercept.** Recall that the intercept is essentially measuring the "base cost" of the region. Making this hierarchical is motivated by the idea that, in clusters that have more observations, we can use a local estimate for the intercept, and in less-populated clusters we should be more informed by a global intercept.
+
+2. **Have cluster-specific variances.** The idea here is that our clusters are purely geographic, and therefore may not consistently capture the variance in a given region (some regions might have high-priced and low-priced neighborhoods, for instance, while others may not).
+
+I've also ditched the heteroskedasticity because we did not observe a significant change in variance over time.
+Here's the resulting model:
+
+```julia
+@model function h_regr(X, y, t, G, nG)
+    n, p = size(X)
+    # global coefficients
+    β ~ MvNormal(zeros(p - 1), 3 * I)
+
+    # multi-level intercepts
+    λ0 ~ Normal(8.17, 1)
+    λj ~ filldist(Normal(λ0, 1), nG)
+    
+    # cluster-specific variances
+    σj ~ filldist(truncated(Normal(0, 1), 0, Inf), nG)
+
+    σ = σj[G]
+    μ = X[:, 2:end] * β .+ λj[G]
+    y ~ MvLogNormal(μ, Diagonal(σ))
+end
+```
+
+This model gets us to about parity with the OLS approach: the MAE out-of-sample is `72914`, essentially the same as our classical OLS with categorical cluster features (`71730`).
+In fact these are very similar models: the plot below compares the classical model's coefficient (vertical line) against the distribution for that cluster as predicted by our hierarchical model:
+
+[![cluster comparison](/images/posts/2025-03-04/cluster-compare.png)](/images/posts/2025-03-04/cluster-compare.png)
+
+(Note that, in order to account for the base case, the OLS coefficients have been adjusted by adding the predicted intercept to their values.)
+Perhaps unsurprisingly, the modes of the densities predicted by Bayesian inference line up almost exactly with the coefficients from our classical linear model.
 
 Future directions
 =================
@@ -723,6 +774,6 @@ For instance:
 * Our clusters may cover too broad a geographic area, or may be imperfect in other ways (e.g. shape): the Redfin dataset also provides a neighborhood label for more granularity, _and_ a street address for an even finer-tuned segmentation.
 * Past transactions on the same home may also be informative: pricing models frequently take into account the price history of an asset, if available (this was not available in the current dataset, though).
 
-In any event, my goal with this post wasn't to develop a perfect house pricing model (so, uh, mission accomplished?), but rather to provide a motivating example for building a hierarchical model using Julia.
-And arguably Julia has excelled at this: we were able to handle data manipulation and cleaning in an intuitive way from start to finish, plus work with a probablistic programming framework (Turing) from within the language itself.
+In any event, my goal with this post wasn't to develop a perfect house pricing model (so, uh, mission accomplished?), but rather to explore both classical and Bayesian methods for addressing the challenges inherent in pricing homes.
+And arguably our main tool, Julia, has excelled at this: we were able to handle data manipulation and cleaning in an intuitive way from start to finish, plus work with a probablistic programming framework (Turing) from within the language itself.
 Speaking personally, Julia has largely replaced R as my statistical analysis tool of choice---and who knows, as packages like [Flux.jl](https://fluxml.ai/Flux.jl/stable/) mature, maybe it will replace Python as well!
